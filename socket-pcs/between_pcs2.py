@@ -7,7 +7,7 @@ import time
 M_size = 1024
 
 #pc1がわの情報
-host = '192.168.11.8'
+host = '0.0.0.0'
 port = 8890
 pc1Adrres = (host, port)
 
