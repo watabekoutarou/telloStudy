@@ -14,7 +14,7 @@ while True:
         message = ("send message")
         #
         if message != 'end':
-            send_len = socket.sendto(message.encode('utf-8'),pc2_address)
+            socket.sendto(message.encode('utf-8'),pc2_address)
             print("Wait response")
             rx_mes, addr = socket.recvfrom(M_SIZE)
             print(f"[Server]: {rx_mes.decode(encoding='utf-8')}")
