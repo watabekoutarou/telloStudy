@@ -32,9 +32,10 @@ while True:
         img = Image.open(io.BytesIO(content))
         # img = img.resize((600, 600))
         img.save("test.jpg")
+        img.show()
 
-        message = message.decode(encoding='utf-8')
-        print(f'Received message is [{message}]')
+        #message = message.decode(encoding='utf-8')
+        #print(f'Received message is [{message}]')
 
         # Clientが受信待ちになるまで待つため
         time.sleep(1)
@@ -45,7 +46,6 @@ while True:
         print ('\n . . .\n')
         sock.close()
         break
-    
     except KeyboardInterrupt:
         print ('\n . . .\n')
         sock.close()
