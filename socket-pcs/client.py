@@ -17,7 +17,7 @@ socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 while True:
     try:
         # 画像の取得からリサイズ
-        img = Image.open("1.jpg").resize((300, 300))
+        img = Image.open("1.jpg").resize((150, 150))
         img_io = io.BytesIO()
         img.save(img_io,format="JPEG")
         #オブジェクトの直列化
@@ -27,6 +27,8 @@ while True:
         print('closing socket')
         socket.close()
         print('done')
+        rx_mes, addr = socket.recvfrom(M_SIZE)
+        print(f"[Server]: {rx_mes.decode(encoding='utf-8')}")
         break
         #message = input("enter  message ")
         """
