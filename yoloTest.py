@@ -1,4 +1,4 @@
-#server_tcp.py
+#PC内のtest2.jpgをyoloの学習済みモデルを用いて物体検出を行うテストコードです
 import socket
 import time
 from PIL import Image
