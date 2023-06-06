@@ -24,3 +24,31 @@ C:\Users\Mrkou>netstat -nao|find "8080"
     最小 = 1ms、最大 = 1ms、平均 = 1ms
 
 ###tello-python3
+
+###　yoloで遊ぶ案
+def square(xmin,xmax,ymin,ymax):
+    return (xmax-xmin)*(ymax-ymin)
+#obj に推論の結果の集合を代入
+obj = result.pandas().xyxy[0]
+#推論の結果のバウンディングボックスのクラスネームと座標を出力
+dic = {}
+
+for i in range(len(obj)):
+    name = obj.nam[1]
+    xmin = obj.xmin[1]
+    ymin = obj.ymin[1]
+    xmax = obj.xmax[1]
+    ymax = obj.ymax[1]
+    if name in dic:
+        dic[name] += square(xmin,xmax,ymin,ymax)
+    else:
+        area = square
+        dic.update(name = area)
+maxArea = 0
+flagKey = '' 
+for key in dic.keys():
+    if maxArea < dic[flagKey]:
+        flagKey = key
+        maxArea = dic[flagKey]
+
+print(f"この画像のメインは{flagKey}で{maxArea}ピクセルあります")
