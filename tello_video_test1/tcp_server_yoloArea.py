@@ -1,12 +1,14 @@
-
 #server_tcp.py
 import socket
 import time
-from PIL import Image
+from PIL import Image,ImageTk
+import tkinter as tk
 import io
 import pickle
 import torch
 import torch.cuda
+import numpy as np
+import cv2
 #tcp通信のサーバ側で受け取った画像の物体検出を行う
 #client側の画像のresizeを(600 480)にしないと検出できない
 #pc2側(server)のプログラム
@@ -35,6 +37,10 @@ print("接続待機")
 client_socket, client_address = sock.accept()
 
 print("接続:",client_address)
+def close_window():
+  window.destroy()
+
+
 while True:
   try:
     message = client_socket.recv(M_size)
@@ -49,6 +55,13 @@ while True:
     result = model(img)
     result.render()
     result.show()
+    #window = tk.Tk()
+    #canvas = tk.Canvas(window, width=img.width,height=img.height)
+    #canvas.pack()
+    #image_tk = ImageTk.PhotoImage(result)
+    #canvas.create_image(0,0,anchor = "nw" , image = image_tk)
+    #window.after(2000,close_window)
+    #window.mainloop()
     #obj に推論の結果の集合を代入
     obj = result.pandas().xyxy[0]
     #推論の結果のバウンディングボックスのクラスネームと座標を出力
@@ -65,7 +78,7 @@ while True:
         area = square(xmin,xmax,ymin,ymax)
         dic[name] = area
     maxArea = 0
-    flagKey = ''
+    flagKey = 'not'
     for key in dic.keys():
       if maxArea < dic[key]:
         flagKey = key
@@ -73,6 +86,13 @@ while True:
     print(f"この画像のメインは{flagKey}で{maxArea}ピクセルあります")
     response = flagKey.encode('utf-8')
     client_socket.send(response)
+    if flagKey == "bottle":
+      maxArea = str(maxArea)
+      print(maxArea)
+      response = maxArea.encode('utf-8')
+      time.sleep(0.5)
+      client_socket.send(response)
+
   except KeyboardInterrupt:
       print ('\n . . .\n')
       client_socket.close()
