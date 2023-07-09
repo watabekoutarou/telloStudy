@@ -16,26 +16,22 @@ M_size = 65535
 def square(xmin,xmax,ymin,ymax):
   return (xmax-xmin)*(ymax-ymin)
 
-#pc1がわの情報
-host = '192.168.11.6'
-port = 8080
-serverAddress = (host, port)
-
-sock = socket.socket(socket.AF_INET, type=socket.SOCK_STREAM)
-print('create socket')
-sock.bind(serverAddress)
-sock.listen()
-
-
 #model の読み込み
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu" )
 model = torch.hub.load('ultralytics/yolov5','yolov5s')
 model.to(device)
 model.eval()
+
+#serverの情報
+host = '192.168.11.6'
+port = 8080
+serverAddress = (host, port)
 print("接続待機")
-
+sock = socket.socket(socket.AF_INET, type=socket.SOCK_STREAM)
+print('create socket')
+sock.bind(serverAddress)
+sock.listen()
 client_socket, client_address = sock.accept()
-
 print("接続:",client_address)
 A = 0
 B = 99999
@@ -45,11 +41,11 @@ def analyDistance(A,B):
     #print(f"A is {A},B is {B}")
     distance = str(int(B/(B-A)*x))
     print(distance,type(distance))
-    response = distance.encode('utf-8')
-    client_socket.send(response)
+    return distance
 
 while True:
   try:
+
     message = client_socket.recv(M_size)
     #復元
     data = pickle.loads(message)
@@ -62,6 +58,7 @@ while True:
     result = model(img)
     result.render()
     result.show()
+    print("1komeの処理")
     #obj に推論の結果の集合を代入
     obj = result.pandas().xyxy[0]
     #推論の結果のバウンディングボックスのクラスネームと座標を出力
@@ -77,7 +74,7 @@ while True:
         A = ymax-ymin
         #対象があった場合clientに特別なメッセージを送信
         response = "discover"
-        client_socket.send(response.encode('utf-8'))
+        client_socket.send(response.encode())
         #対象があった場合distanceの計算のため
         # 2回目の画像送信を受信する
         message = client_socket.recv(M_size)
@@ -88,7 +85,8 @@ while True:
         img = img.resize((640,480))
         result = model(img)
         result.render()
-        #result.show()
+        result.show()
+        print("2komeの処理")
         #obj に推論の結果の集合を代入
         obj = result.pandas().xyxy[0]
         for i in range(len(obj)):
@@ -98,13 +96,19 @@ while True:
             xmax = obj.xmax[i]
             ymax = obj.ymax[i]
             if name =="bottle" :
-                B = ymax-ymin
-                break
+              print("x軸の基準決定")
+              B = ymax-ymin
+              break
         if B != 99999:
            distance = analyDistance(A,B)
-           response = distance.encode('utf-8')
-           client_socket.send(response)
-        
+           #response = distance.encode('utf-8')
+           client_socket.send(distance.encode('utf-8'))
+           print("1こめのdistanse送信")
+        else:
+          print("見失いました")
+          distance = 0
+          client_socket.send(distance.encode('utf-8'))
+        #y軸の計算
         B=99999
         message = client_socket.recv(M_size)
         #復元
@@ -152,19 +156,20 @@ while True:
                       break
                   if B ==99999:
                      response = "end"
+                     print("end1")
                      client_socket.send(response.encode('utf-8'))
                      sys.exit()
                   analyDistance(A,B)
         else:
            response = "end"
-           response = response.encode('utf-8')
-           client_socket.send(response)
+           print("end2")
+           client_socket.send(response.encode('utf-8'))
            sys.exit()
-      else:
-         response="None"
-         client_address.send(response.encode('utf-8'))
-         continue
-         
+      #画像に対象がなかった場合　clientにNoneを送信
+    response="None"
+    print(response)
+    client_socket.send(response.encode('utf-8'))
+
   except KeyboardInterrupt:
     print ('\n . . .\n')
     client_socket.close()
