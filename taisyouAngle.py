@@ -1,4 +1,3 @@
-#ドローンで撮影した画像の中で対象が右、左のどこらへんか、中央か　で合計9パターンの領域のどれに該当するかを検証する
 import tello
 from PIL import Image
 import socket
@@ -54,16 +53,23 @@ while True:
         A = float(ymax-ymin)
         center = int(xmax-xmin)/2+xmin
         print(f"center si {center}")
-        angle=int(center/(960/9))
-        print(f"an si {angle}")
+        lcr=0
         #対象の角度を右、左10,20,30,40度と中央の９種類に分別
-        if angle<4:
-           angle=8/(angle+2)*10
-           print(f"左側,{angle}度にあります")
-        elif 4<angle:
-           angle=(angle-4)*10
-           print(f"右側,{angle}度にあります")
-        if angle ==4:
+        if center<60:
+            lcr=0
+        elif 900<center:
+            lcr=8
+        else :
+            lcr=(center-60)//120+1
+    if lcr<4:
+           lcr=(4-lcr)*10
+           print(f"左側,{lcr}度にあります")
+           
+    elif 4<lcr:
+           lcr=(lcr-4)*10
+           print(f"右側,{lcr}度にあります")
+           
+    if lcr ==4:
            print("中央にあります")
     result.show()
     analyDistance(A)
