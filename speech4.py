@@ -177,7 +177,7 @@ time.sleep(0.5)
 target="a"
 #print(speech_reception())
 #音声認識受付部分　
-"""
+
 while True:
     try:
         target = speech_reception()
@@ -188,7 +188,7 @@ while True:
         print("\n-------input ~c------\n")
         del drone
         sys.exit()
-"""
+
 drone.takeoff()
 time.sleep(3)
 #drone.move_up(0.5)
